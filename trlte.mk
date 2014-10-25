@@ -50,11 +50,31 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
 
 # Audio
+PRODUCT_PACKAGES += \
+    audiod \
+    audio_policy.apq8084 \
+    audio.a2dp.default \
+    audio.primary.apq8084 \
+    audio.r_submix.default \
+    audio.usb.default \
+    libaudio-resampler \
+    libqcomvisualizer \
+    libqcompostprocbundle \
+    libqcomvoiceprocessing \
+    tinymix
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/audio/audio_effects.conf:system/vendor/etc/audio_effects.conf \
     $(LOCAL_PATH)/audio/audio_platform_info.xml:system/etc/audio_platform_info.xml \
     $(LOCAL_PATH)/audio/audio_policy.conf:system/etc/audio_policy.conf \
     $(LOCAL_PATH)/audio/mixer_paths.xml:system/etc/mixer_paths.xml
+
+# Display
+PRODUCT_PACKAGES += \
+    copybit.apq8084 \
+    gralloc.apq8084 \
+    hwcomposer.apq8084 \
+    memtrack.apq8084
 
 # GPS
 PRODUCT_PACKAGES += \
