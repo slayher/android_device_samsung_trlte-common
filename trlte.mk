@@ -120,6 +120,7 @@ PRODUCT_PACKAGES += \
     init.crda.sh \
     init.qcom.rc \
     init.qcom.usb.rc \
+    init.qcom.usb.sh \
     init.sec.boot.sh \
     ueventd.qcom.rc
 
