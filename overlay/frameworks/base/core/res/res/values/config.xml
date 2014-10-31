@@ -143,6 +143,9 @@
         <item>7</item>
     </integer-array>
 
+    <!-- The default iface on which to monitor data use -->
+    <string name="config_datause_iface" translatable="false">rmnet_usb0</string>
+
     <!-- Boolean indicating whether the wifi chipset has dual frequency band support -->
     <bool translatable="false" name="config_wifi_dual_band_support">true</bool>
 
