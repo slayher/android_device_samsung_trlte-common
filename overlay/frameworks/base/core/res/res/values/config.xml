@@ -21,7 +21,8 @@
      for different hardware and product builds. -->
 <resources>
 
-    <bool name="config_deskDockEnablesAccelerometer">false</bool>
+    <bool name="config_deskDockEnablesAccelerometer">true</bool>
+    <bool name="config_carDockEnablesAccelerometer">true</bool>
 
     <!-- Default color for notification LED is white. -->
     <color name="config_defaultNotificationColor">#ffffffff</color>
@@ -41,10 +42,13 @@
 
          Must be overridden in platform specific overlays -->
     <integer-array name="config_autoBrightnessLevels">
-        <item>15</item>
+        <item>10</item>
+        <item>30</item>
+        <item>60</item>
+        <item>100</item>
         <item>150</item>
-        <item>1000</item>
-        <item>5000</item>
+        <item>210</item>
+        <item>255</item>
     </integer-array>
 
     <!-- Array of output values for LCD backlight corresponding to the LUX values
@@ -52,10 +56,13 @@
          than the size of the config_autoBrightnessLevels array.
          This must be overridden in platform specific overlays -->
     <integer-array name="config_autoBrightnessLcdBacklightValues">
+        <item>10</item>
         <item>20</item>
-        <item>80</item>
-        <item>130</item>
-        <item>190</item>
+        <item>40</item>
+        <item>70</item>
+        <item>110</item>
+        <item>160</item>
+        <item>200</item>
         <item>255</item>
     </integer-array>
 
@@ -73,11 +80,11 @@
 
 
     <!-- Minimum screen brightness allowed by the power manager. -->
-    <integer name="config_screenBrightnessDim">10</integer>
+    <integer name="config_screenBrightnessDim">15</integer>
 
     <!-- Default screen brightness setting.
          Must be in the range specified by minimum and maximum. -->
-    <integer name="config_screenBrightnessSettingDefault">102</integer>
+    <integer name="config_screenBrightnessSettingDefault">134</integer>
 
     <!-- Minimum screen brightness setting allowed by the power manager.
          The user is forbidden from setting the brightness below this level. -->
@@ -150,7 +157,7 @@
     <bool translatable="false" name="config_wifi_dual_band_support">true</bool>
 
     <!-- Boolean indicating whether the wifi chipset has background scan support -->
-    <bool translatable="false" name="config_wifi_background_scan_support">false</bool>
+    <bool translatable="false" name="config_wifi_background_scan_support">true</bool>
 
     <!-- Enables or disables fading edges when marquee is enabled in TextView. -->
     <bool name="config_ui_enableFadingMarquee">false</bool>
@@ -170,6 +177,13 @@
 
     <!-- Does the battery LED support multiple colors? Used to decide if the user can change the colors -->
     <bool name="config_multiColorBatteryLed">true</bool>
+
+    <!-- List of paths to serial ports that are available to the serial manager.
+         for example, /dev/ttyUSB0
+    -->
+    <string-array translatable="false" name="config_serialPorts">
+        <item>/dev/ttyHSL1</item>
+    </string-array>
 
 <!-- Vibrator pattern for feedback about a long screen/key press -->
     <integer-array name="config_longPressVibePattern">
