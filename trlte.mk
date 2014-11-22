@@ -120,6 +120,10 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-sec.conf \
     $(LOCAL_PATH)/configs/nfcee_access.xml:system/etc/nfcee_access.xml
 
+# Power HAL
+PRODUCT_PACKAGES += \
+	power.apq8084
+
 # Ramdisk
 PRODUCT_PACKAGES += \
     fstab.qcom \
