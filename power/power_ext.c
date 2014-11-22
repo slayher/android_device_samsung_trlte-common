@@ -24,7 +24,6 @@
 #define TOUCHKEY_POWER "/sys/class/input/event1/device/enabled"
 #define SPEN_POWER "/sys/class/input/event20/device/enabled"
 #define TSP_POWER "/sys/class/input/event2/device/enabled"
-//#define GPIO_KEYS_POWER "/sys/class/input/event17/device/enabled"
 #define LCD_POWER "/sys/class/power_supply/battery/lcd"
 
 static void sysfs_write(char *path, char *s) {
@@ -52,7 +51,6 @@ void cm_power_set_interactive_ext(int on) {
     sysfs_write(TSP_POWER, on ? "1" : "0");
     sysfs_write(TOUCHKEY_POWER, on ? "1" : "0");
     sysfs_write(SPEN_POWER, on ? "1" : "0");
-    //sysfs_write(GPIO_KEYS_POWER, on ? "1" : "0");
     sysfs_write(LCD_POWER, on ? "1" : "0");
 }
 
