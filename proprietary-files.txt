@@ -22,6 +22,10 @@ vendor/lib/libfastcvopt.so
 vendor/lib/libscve.so
 vendor/lib/libscve_stub.so
 
+# Audio
+lib/libdetectmodem.so
+lib/libssaudio-client.so
+
 # Camera
 bin/mm-qcamera-daemon
 lib/hw/camera.apq8084.so:lib/hw/camera.vendor.apq8084.so
