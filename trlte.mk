@@ -40,6 +40,7 @@ $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui
 # Permissions
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
+    frameworks/native/data/etc/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml \
     frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:system/etc/permissions/android.hardware.sensor.stepcounter.xml \
     frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:system/etc/permissions/android.hardware.sensor.stepdetector.xml \
     frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
@@ -48,6 +49,55 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
     frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+
+# These are the hardware-specific features
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
+    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
+    frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
+    frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
+    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
+    frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
+    frameworks/native/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
+    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
+    frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
+    frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
+    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
+    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
+    frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
+    frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml
+
+# These are the software-specific features
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
+
+
+# For GPS
+PRODUCT_COPY_FILES += \
+    device/samsung/trlte-common/configs/sec_config:system/etc/sec_config
+
+# GPS configuration
+PRODUCT_COPY_FILES += \
+    device/samsung/trlte-common/configs//gps.conf:system/etc/gps.conf
+
+# GPS
+PRODUCT_PACKAGES += \
+    libloc_adapter \
+    libloc_eng \
+    libloc_api_v02 \
+    libloc_ds_api \
+    libloc_core \
+    libizat_core \
+    libgeofence \
+    libgps.utils \
+    gps.msm8084 \
+    flp.msm8084 \
+    liblbs_core \
+    flp.conf \
+    gsiff_daemon \
+    sap.conf
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -105,20 +155,39 @@ PRODUCT_PACKAGES += \
 # Media
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
-    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml
+    $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
 
-# NFC
-#PRODUCT_PACKAGES += \
-#    com.android.nfc_extras \
-#    NfcNci \
-#    nfc_nci.apq8084 \
-#    Tag
+# This device is 560dpi.  However the platform doesn't
+# currently contain all of the bitmaps at 560dpi density so
+# we do this little trick to fall back to the xxhdpi version
+# if the 560dpi doesn't exist.
+PRODUCT_AAPT_CONFIG := normal hdpi xhdpi xxhdpi 515dpi xxxhdpi
+PRODUCT_AAPT_PREF_CONFIG := 515dpi
 
-# NFC
+
+ # NFC PACKAGES
+PRODUCT_PACKAGES += \
+    com.android.nfc_extras \
+    libnfc-sec \
+    NfcNci \
+    Tag \
+    nfc_nci.apq8084 \
+ 
+# NFC CONFIG
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
     $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-sec.conf \
+    $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-brcm.conf \
+    $(LOCAL_PATH)/configs/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
     $(LOCAL_PATH)/configs/nfcee_access.xml:system/etc/nfcee_access.xml
+
+#NFC HAL
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/nfc/libnfc_nci_jni.so:system/lib/libnfc_nci_jni.so \
+#    $(LOCAL_PATH)/nfc/libnfc-nci.so:system/lib/libnfc-nci.so \
+#    $(LOCAL_PATH)/nfc/nfc_nci.apq8084.so:system/lib/hw/nfc_nci.apq8084.so
 
 # Power HAL
 PRODUCT_PACKAGES += \
@@ -148,3 +217,45 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
    $(LOCAL_PATH)/configs/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
    $(LOCAL_PATH)/configs/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.audio.monitorRotation=true
+
+# Audio effects
+PRODUCT_PACKAGES += \
+    libqcomvisualizer \
+    libqcomvoiceprocessing \
+    libqcomvoiceprocessingdescriptors
+
+# Fingerprint sensor
+PRODUCT_PACKAGES += \
+    fingerprint.apq8084
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    fingerprint_enabled=1
+
+PRODUCT_PACKAGES += \
+    libc2dcolorconvert \
+    libstagefrighthw \
+    libOmxCore \
+    libmm-omxcore \
+    libOmxVdec \
+    libOmxVdecHevc \
+    libOmxVenc
+
+PRODUCT_PACKAGES += \
+    libion
+
+# Filesystem management tools
+PRODUCT_PACKAGES += \
+    e2fsck
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sf.lcd_density=515
+
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+    persist.sys.usb.config=mtp
+
+# volte call
+AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
+
