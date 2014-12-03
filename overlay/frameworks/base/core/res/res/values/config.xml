@@ -404,7 +404,7 @@
          if the sensor HAL correctly handles the proximity sensor as a wake-up source.
          Otherwise, the device may fail to wake out of suspend reliably.
          The default is false. -->
-    <!--bool name="config_suspendWhenScreenOffDueToProximity">true</bool -->
+    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
 
     <!-- Indicate the device's Smart Cover coordinates.
          If none are provided, then the feature will be disabled.
