@@ -802,6 +802,13 @@
 		<ctl name="LINEOUT4 Volume" value="16" />
 	</path>
 
+        <path name="speaker-reverse">
+                <path name="spk" />
+                <ctl name="RX5 Digital Volume" value="84" />
+                <ctl name="LINEOUT2 Volume" value="16" />
+                <ctl name="LINEOUT4 Volume" value="16" />
+        </path>
+
 	<path name="headset">
 		<path name="ear" />
 		<ctl name="HPHL Volume" value="20" />
