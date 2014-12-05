@@ -168,7 +168,7 @@
         <item>"usb0"</item>
     </string-array>
 
-    <string-array translatable="false" name="config_oemUsbModeOverride">
+    <!--string-array translatable="false" name="config_oemUsbModeOverride">
         <item>"bp-tools:rndis,adb:rndis,diag,diag_mdm,serial_hsic,serial_tty,rmnet_hsic,usbnet,adb"</item>
         <item>"bp-tools:rndis:rndis,diag,diag_mdm,serial_hsic,serial_tty,rmnet_hsic,usbnet,adb"</item>
         <item>"bp-tools:mtp,adb:diag,diag_mdm,serial_hsic,serial_tty,rmnet_hsic,usbnet,adb"</item>
@@ -177,7 +177,7 @@
         <item>"mot-factory:rndis:usbnet"</item>
         <item>"mot-factory:mtp,adb:usbnet,adb"</item>
         <item>"mot-factory:mtp:usbnet"</item>
-    </string-array>
+    </string-array-->
 
     <!-- List of regexpressions describing the interface (if any) that represent tetherable
          Wifi interfaces.  If the device doesn't want to support tethering over Wifi this

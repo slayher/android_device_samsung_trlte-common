@@ -41,8 +41,6 @@ $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.nfc.xml:system/etc/permissions/android.hardware.nfc.xml \
     frameworks/native/data/etc/android.hardware.nfc.hce.xml:system/etc/permissions/android.hardware.nfc.hce.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:system/etc/permissions/android.hardware.sensor.stepcounter.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:system/etc/permissions/android.hardware.sensor.stepdetector.xml \
     frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
     frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
@@ -56,6 +54,12 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
     frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
+    frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:system/etc/permissions/android.hardware.sensor.stepcounter.xml \
+    frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:system/etc/permissions/android.hardware.sensor.stepdetector.xml \
+    frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
+    frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
+    frameworks/native/data/etc/android.hardware.sensor.heartrate.ecg.xml:system/etc/permissions/android.hardware.sensor.heartrate.ecg.xml \
+    frameworks/native/data/etc/android.hardware.sensor.heartrate.xml:system/etc/permissions/android.hardware.sensor.heartrate.xml \
     frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
     frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
     frameworks/native/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
@@ -80,7 +84,7 @@ PRODUCT_COPY_FILES += \
 
 # GPS configuration
 PRODUCT_COPY_FILES += \
-    device/samsung/trlte-common/configs//gps.conf:system/etc/gps.conf
+    device/samsung/trlte-common/configs/gps.conf:system/etc/gps.conf
 
 # GPS
 PRODUCT_PACKAGES += \
@@ -92,12 +96,16 @@ PRODUCT_PACKAGES += \
     libizat_core \
     libgeofence \
     libgps.utils \
+    gps.apq8084 \
     gps.msm8084 \
+    flp.apq8084 \
     flp.msm8084 \
     liblbs_core \
     flp.conf \
     gsiff_daemon \
-    sap.conf
+    sap.conf \
+    libgps.util
+
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -150,7 +158,17 @@ PRODUCT_COPY_FILES += \
 
 # Lights
 PRODUCT_PACKAGES += \
-    lights.apq8084
+    lights.apq8084 \
+    sec_torch
+
+# Misc
+PRODUCT_PACKAGES += \
+    sec_misc \
+    sec_barcode_emul \
+    sec_ir \
+    sec_misc \
+    sec_parem \
+    sec_epen
 
 # Media
 PRODUCT_COPY_FILES += \
@@ -188,10 +206,6 @@ PRODUCT_COPY_FILES += \
 #    $(LOCAL_PATH)/nfc/libnfc_nci_jni.so:system/lib/libnfc_nci_jni.so \
 #    $(LOCAL_PATH)/nfc/libnfc-nci.so:system/lib/libnfc-nci.so \
 #    $(LOCAL_PATH)/nfc/nfc_nci.apq8084.so:system/lib/hw/nfc_nci.apq8084.so
-
-# Power HAL
-PRODUCT_PACKAGES += \
-	power.apq8084
 
 # Ramdisk
 PRODUCT_PACKAGES += \
@@ -258,4 +272,46 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 
 # volte call
 AUDIO_FEATURE_ENABLED_MULTI_VOICE_SESSIONS := true
+
+PRODUCT_PROPERTY_OVERRIDES += \
+   ro.hwui.texture_cache_size=72 \
+   ro.hwui.layer_cache_size=48 \
+   ro.hwui.r_buffer_cache_size=8 \
+   ro.hwui.path_cache_size=32 \
+   ro.hwui.gradient_cache_size=1 \
+   ro.hwui.drop_shadow_cache_size=6 \
+   ro.hwui.texture_cache_flushrate=0.4 \
+   ro.hwui.text_small_cache_width=1024 \
+   ro.hwui.text_small_cache_height=1024 \
+   ro.hwui.text_large_cache_width=2048 \
+   ro.hwui.text_large_cache_height=1024 \
+   log.tag.LocationManagerService=VERBOSE \
+   log.tag.GpsLocationProvider=VERBOSE
+
+PRODUCT_PROPERTY_OVERRIDES += \
+   dalvik.vm.heapgrowthlimit=256m
+
+# setup dalvik vm configs.
+$(call inherit-product, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
+$(call inherit-product-if-exists, hardware/qcom/msm8x84/msm8x84.mk)
+$(call inherit-product-if-exists, vendor/qcom/gpu/msm8x84/msm8x84-gpu-vendor.mk)
+
+# setup dm-verity configs.
+PRODUCT_SYSTEM_VERITY_PARTITION := /dev/block/platform/msm_sdcc.1/by-name/system
+
+$(call inherit-product, build/target/product/verity.mk)
+
+# setup scheduler tunable
+PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
+    ro.qualcomm.perf.cores_online=2
+
+PRODUCT_PACKAGES += \
+    power.trlte
+
+PRODUCT_PROPERTY_OVERRIDES += \
+   ro.frp.pst=/dev/block/platform/msm_sdcc.1/by-name/frp
+
+# CM apps
+#PRODUCT_PACKAGES += \
+#   Torch
 
