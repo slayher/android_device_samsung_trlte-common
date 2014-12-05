@@ -310,8 +310,3 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
    ro.frp.pst=/dev/block/platform/msm_sdcc.1/by-name/frp
-
-# CM apps
-#PRODUCT_PACKAGES += \
-#   Torch
-
