@@ -21,7 +21,7 @@
     <bool name="useCameraInterface">false</bool>
 
     <!-- Full path to the sysfs toggle -->
-    <string name="flashDevice">/sys/class/leds/torch-sec1/brightness</string>
+    <string name="flashDevice">/sys/class/camera/flash/rear_flash</string>
 
     <!-- Lowest setting -->
     <integer name="valueOn">5</integer>

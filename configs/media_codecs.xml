@@ -15,7 +15,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<CodecList>
+<MediaCodecs>
+    <Include href="media_codecs_google_audio.xml" />
+    <Include href="media_codecs_google_telephony.xml" />
     <Encoders>
 		<!-- Audio Software  -->
 		<MediaCodec name="OMX.SEC.aac.enc" type="audio/mp4a-latm" />
@@ -246,4 +248,5 @@
         <MediaCodec name="OMX.google.h263.decoder" type="video/3gpp" />
         <MediaCodec name="OMX.google.mpeg4.decoder" type="video/mp4v-es" />
     </Decoders>
-</CodecList>
+    <Include href="media_codecs_google_video.xml" />
+</MediaCodecs>
