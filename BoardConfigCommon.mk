@@ -141,6 +141,9 @@ include device/qcom/sepolicy/sepolicy.mk
 #    wpa.te \
 #    wpa_socket.te
 
+# Time
+BOARD_USES_QC_TIME_SERVICES := true
+
 # Wifi
 BOARD_HAVE_SAMSUNG_WIFI := true
 BOARD_WLAN_DEVICE := bcmdhd
