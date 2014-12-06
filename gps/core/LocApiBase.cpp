@@ -126,7 +126,7 @@ struct LocOpenMsg : public LocMsg {
 
 LocApiBase::LocApiBase(const MsgTask* msgTask,
                        LOC_API_ADAPTER_EVENT_MASK_T excludedMask) :
-    mExcludedMask(excludedMask), mMsgTask(msgTask), mMask(0)
+    mMsgTask(msgTask), mExcludedMask(excludedMask), mMask(0)
 {
     memset(mLocAdapters, 0, sizeof(mLocAdapters));
 }
@@ -404,8 +404,7 @@ enum loc_api_adapter_err LocApiBase::
 DEFAULT_IMPL(LOC_API_ADAPTER_ERR_SUCCESS)
 
 enum loc_api_adapter_err LocApiBase::
-    setSensorControlConfig(int sensorUsage,
-                           int sensorProvider)
+    setSensorControlConfig(int sensorUsage)
 DEFAULT_IMPL(LOC_API_ADAPTER_ERR_SUCCESS)
 
 enum loc_api_adapter_err LocApiBase::

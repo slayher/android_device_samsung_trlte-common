@@ -30,7 +30,7 @@
 #define LOC_API_ENG_ADAPTER_H
 
 #include <ctype.h>
-#include "hardware/gps.h"
+#include <hardware/gps.h>
 #include <loc.h>
 #include <loc_eng_log.h>
 #include <log_util.h>
@@ -64,6 +64,7 @@ public:
     virtual void stopFixInt();
     virtual void getZppInt();
     virtual void setUlpProxy(UlpProxyBase* ulp);
+    virtual void shutdown();
 };
 
 typedef void (*loc_msg_sender)(void* loc_eng_data_p, void* msgp);
@@ -74,13 +75,19 @@ class LocEngAdapter : public LocAdapterBase {
     UlpProxyBase* mUlp;
     LocPosMode mFixCriteria;
     bool mNavigating;
+    // mPowerVote is encoded as
+    // mPowerVote & 0x20 -- powerVoteRight
+    // mPowerVote & 0x10 -- power On / Off
+    unsigned int mPowerVote;
+    static const unsigned int POWER_VOTE_RIGHT = 0x20;
+    static const unsigned int POWER_VOTE_VALUE = 0x10;
 
 public:
     bool mSupportsAgpsRequests;
     bool mSupportsPositionInjection;
 
     LocEngAdapter(LOC_API_ADAPTER_EVENT_MASK_T mask,
-                  void* owner,ContextBase* context,
+                  void* owner, ContextBase* context,
                   MsgTask::tCreate tCreator);
     virtual ~LocEngAdapter();
 
@@ -91,12 +98,8 @@ public:
     inline LocInternalAdapter* getInternalAdapter() { return mInternalAdapter; }
     inline UlpProxyBase* getUlpProxy() { return mUlp; }
     inline void* getOwner() { return mOwner; }
-    inline bool hasAgpsExtendedCapabilities() {
-        return mContext->hasAgpsExtendedCapabilities();
-    }
-    inline bool hasCPIExtendedCapabilities() {
-        return mContext->hasCPIExtendedCapabilities();
-    }
+    inline bool hasAgpsExtendedCapabilities() { return mContext->hasAgpsExtendedCapabilities(); }
+    inline bool hasCPIExtendedCapabilities() { return mContext->hasCPIExtendedCapabilities(); }
     inline const MsgTask* getMsgTask() { return mMsgTask; }
 
     inline enum loc_api_adapter_err
@@ -189,9 +192,9 @@ public:
         return mLocApi->setLPPConfig(profile);
     }
     inline enum loc_api_adapter_err
-        setSensorControlConfig(int sensorUsage, int sensorProvider)
+        setSensorControlConfig(int sensorUsage)
     {
-        return mLocApi->setSensorControlConfig(sensorUsage, sensorProvider);
+        return mLocApi->setSensorControlConfig(sensorUsage);
     }
     inline enum loc_api_adapter_err
         setSensorProperties(bool gyroBiasVarianceRandomWalk_valid, float gyroBiasVarianceRandomWalk,
@@ -278,6 +281,26 @@ public:
     inline virtual bool isInSession()
     { return mNavigating; }
     void setInSession(bool inSession);
+
+    // Permit/prohibit power voting
+    inline void setPowerVoteRight(bool powerVoteRight) {
+        mPowerVote = powerVoteRight ? (mPowerVote | POWER_VOTE_RIGHT) :
+                                      (mPowerVote & ~POWER_VOTE_RIGHT);
+    }
+    inline bool getPowerVoteRight() const {
+        return (mPowerVote & POWER_VOTE_RIGHT) != 0 ;
+    }
+    // Set the power voting up/down and do actual operation if permitted
+    inline void setPowerVote(bool powerOn) {
+        mPowerVote = powerOn ? (mPowerVote | POWER_VOTE_VALUE) :
+                               (mPowerVote & ~POWER_VOTE_VALUE);
+        requestPowerVote();
+    }
+    inline bool getPowerVote() const {
+        return (mPowerVote & POWER_VOTE_VALUE) != 0 ;
+    }
+    // Do power voting according to last settings if permitted
+    void requestPowerVote();
 
     /*Values for lock
       1 = Do not lock any position sessions

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -30,7 +30,7 @@
 #define LOG_NDDEBUG 0
 #define LOG_TAG "LocSvc_afw"
 
-#include "hardware/gps.h"
+#include <hardware/gps.h>
 #include <gps_extended.h>
 #include <loc_eng.h>
 #include <loc_target.h>
@@ -44,7 +44,12 @@
 #include <errno.h>
 #include <LocDualContext.h>
 #include <cutils/properties.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 using namespace loc_core;
 
 //Globals defns
@@ -68,7 +73,7 @@ static int  loc_set_position_mode(GpsPositionMode mode, GpsPositionRecurrence re
                                   uint32_t min_interval, uint32_t preferred_accuracy,
                                   uint32_t preferred_time);
 static const void* loc_get_extension(const char* name);
-
+static void loc_close_mdm_node();
 // Defines the GpsInterface in gps.h
 static const GpsInterface sLocEngInterface =
 {
@@ -120,6 +125,9 @@ const GpsNiInterface sLocEngNiInterface =
    loc_ni_init,
    loc_ni_respond,
 };
+
+// For shutting down MDM in fusion devices
+static int mdm_fd = -1;
 
 static void loc_agps_ril_init( AGpsRilCallbacks* callbacks );
 static void loc_agps_ril_set_ref_location(const AGpsRefLocation *agps_reflocation, size_t sz_struct);
@@ -241,6 +249,7 @@ SIDE EFFECTS
 static int loc_init(GpsCallbacks* callbacks)
 {
     int retVal = -1;
+    int i = 0;
     ENTRY_LOG();
     LOC_API_ADAPTER_EVENT_MASK_T event;
 
@@ -269,7 +278,8 @@ static int loc_init(GpsCallbacks* callbacks)
                                     callbacks->create_thread_cb, /* create_thread_cb */
                                     NULL, /* location_ext_parser */
                                     NULL, /* sv_ext_parser */
-                                    callbacks->request_utc_time_cb /* request_utc_time_cb */};
+                                    callbacks->request_utc_time_cb, /* request_utc_time_cb */
+                                    loc_close_mdm_node  /*loc_shutdown_cb*/};
 
     gps_loc_cb = callbacks->location_cb;
     gps_sv_cb = callbacks->sv_status_cb;
@@ -279,8 +289,50 @@ static int loc_init(GpsCallbacks* callbacks)
     loc_afw_data.adapter->mSupportsAgpsRequests = !loc_afw_data.adapter->hasAgpsExtendedCapabilities();
     loc_afw_data.adapter->mSupportsPositionInjection = !loc_afw_data.adapter->hasCPIExtendedCapabilities();
 
+    if(retVal) {
+        LOC_LOGE("loc_eng_init() fail!");
+        goto err;
+    }
+
+    loc_afw_data.adapter->setPowerVoteRight(loc_get_target() == TARGET_QCA1530);
+    loc_afw_data.adapter->setPowerVote(true);
+
+    LOC_LOGD("loc_eng_init() success!");
+
+err:
     EXIT_LOG(%d, retVal);
     return retVal;
+}
+
+/*===========================================================================
+FUNCTION    loc_close_mdm_node
+
+DESCRIPTION
+   closes mdm_fd which is the modem powerup node obtained in loc_init
+
+DEPENDENCIES
+   None
+
+RETURN VALUE
+   None
+
+SIDE EFFECTS
+   N/A
+
+===========================================================================*/
+static void loc_close_mdm_node()
+{
+    ENTRY_LOG();
+    if (mdm_fd >= 0) {
+        LOC_LOGD("closing the powerup node");
+        close(mdm_fd);
+        mdm_fd = -1;
+        LOC_LOGD("finished closing the powerup node");
+    } else {
+        LOC_LOGD("powerup node has not been opened yet.");
+    }
+
+    EXIT_LOG(%s, VOID_RET);
 }
 
 /*===========================================================================
@@ -302,18 +354,13 @@ SIDE EFFECTS
 static void loc_cleanup()
 {
     ENTRY_LOG();
+
+    loc_afw_data.adapter->setPowerVote(false);
+
     loc_eng_cleanup(loc_afw_data);
+    loc_close_mdm_node();
     gps_loc_cb = NULL;
     gps_sv_cb = NULL;
-
-/*
-    if (gss_fd >= 0)
-    {
-        close(gss_fd);
-        gss_fd = -1;
-        LOC_LOGD("GSS shutdown.\n");
-    }
-*/
 
     EXIT_LOG(%s, VOID_RET);
 }
@@ -778,12 +825,8 @@ SIDE EFFECTS
 static int loc_xtra_inject_data(char* data, int length)
 {
     ENTRY_LOG();
-    int ret_val = -1;
-    if( (data != NULL) && ((unsigned int)length <= XTRA_DATA_MAX_SIZE))
-        ret_val = loc_eng_xtra_inject_data(loc_afw_data, data, length);
-    else
-        LOC_LOGE("%s, Could not inject XTRA data. Buffer address: %p, length: %d",
-                 __func__, data, length);
+    int ret_val = loc_eng_xtra_inject_data(loc_afw_data, data, length);
+
     EXIT_LOG(%d, ret_val);
     return ret_val;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -52,34 +52,6 @@ void LocInternalAdapter::stopFixInt() {
 void LocInternalAdapter::getZppInt() {
     sendMsg(new LocEngGetZpp(mLocEngAdapter));
 }
-
-LocEngAdapter::LocEngAdapter(LOC_API_ADAPTER_EVENT_MASK_T mask,
-                             void* owner, ContextBase* context,
-                             MsgTask::tCreate tCreator) :
-    LocAdapterBase(mask,
-                   //Get the AFW context if VzW context has not already been intialized in
-                   //loc_ext
-                   context == NULL?
-                   LocDualContext::getLocFgContext(tCreator,
-                                                   LocDualContext::mLocationHalName)
-                   :context),
-    mOwner(owner), mInternalAdapter(new LocInternalAdapter(this)),
-    mUlp(new UlpProxyBase()), mNavigating(false),
-    mSupportsAgpsRequests(false),
-    mSupportsPositionInjection(false)
-{
-    memset(&mFixCriteria, 0, sizeof(mFixCriteria));
-    mFixCriteria.mode = LOC_POSITION_MODE_INVALID;
-    LOC_LOGD("LocEngAdapter created");
-}
-
-inline
-LocEngAdapter::~LocEngAdapter()
-{
-    delete mInternalAdapter;
-    LOC_LOGV("LocEngAdapter deleted");
-}
-
 void LocInternalAdapter::setUlpProxy(UlpProxyBase* ulp) {
     struct LocSetUlpProxy : public LocMsg {
         LocAdapterBase* mAdapter;
@@ -97,6 +69,37 @@ void LocInternalAdapter::setUlpProxy(UlpProxyBase* ulp) {
     sendMsg(new LocSetUlpProxy(mLocEngAdapter, ulp));
 }
 
+void LocInternalAdapter::shutdown() {
+    sendMsg(new LocEngShutdown(mLocEngAdapter));
+}
+
+LocEngAdapter::LocEngAdapter(LOC_API_ADAPTER_EVENT_MASK_T mask,
+                             void* owner, ContextBase* context,
+                             MsgTask::tCreate tCreator) :
+    LocAdapterBase(mask,
+                   //Get the AFW context if VzW context has not already been intialized in
+                   //loc_ext
+                   context == NULL?
+                   LocDualContext::getLocFgContext(tCreator,
+                                                   LocDualContext::mLocationHalName)
+                   :context),
+    mOwner(owner), mInternalAdapter(new LocInternalAdapter(this)),
+    mUlp(new UlpProxyBase()), mNavigating(false),
+    mSupportsAgpsRequests(false),
+    mSupportsPositionInjection(false), mPowerVote(0)
+{
+    memset(&mFixCriteria, 0, sizeof(mFixCriteria));
+    mFixCriteria.mode = LOC_POSITION_MODE_INVALID;
+    LOC_LOGD("LocEngAdapter created");
+}
+
+inline
+LocEngAdapter::~LocEngAdapter()
+{
+    delete mInternalAdapter;
+    LOC_LOGV("LocEngAdapter deleted");
+}
+
 void LocEngAdapter::setUlpProxy(UlpProxyBase* ulp)
 {
     if (ulp == mUlp) {
@@ -104,24 +107,52 @@ void LocEngAdapter::setUlpProxy(UlpProxyBase* ulp)
         //and we get the same object back for UlpProxyBase . Do nothing
         return;
     }
-
+    delete mUlp;
     LOC_LOGV("%s] %p", __func__, ulp);
     if (NULL == ulp) {
-        LOC_LOGE("%s:%d]: ulp pointer is NULL", __func__, __LINE__);
         ulp = new UlpProxyBase();
     }
-
-    if (LOC_POSITION_MODE_INVALID != mUlp->mPosMode.mode) {
-        // need to send this mode and start msg to ULP
-        ulp->sendFixMode(mUlp->mPosMode);
-    }
-
-    if(mUlp->mFixSet) {
-        ulp->sendStartFix();
-    }
-
-    delete mUlp;
     mUlp = ulp;
+
+    if (LOC_POSITION_MODE_INVALID != mFixCriteria.mode) {
+        // need to send this mode and start msg to ULP
+        mUlp->sendFixMode(mFixCriteria);
+        mUlp->sendStartFix();
+    }
+}
+
+void LocEngAdapter::requestPowerVote()
+{
+    struct LocEngAdapterVotePower : public LocMsg {
+        LocEngAdapter* mAdapter;
+        const bool mPowerUp;
+        inline LocEngAdapterVotePower(LocEngAdapter* adapter, bool powerUp) :
+            LocMsg(), mAdapter(adapter), mPowerUp(powerUp)
+        {
+            locallog();
+        }
+        inline virtual void proc() const {
+            /* Power voting without engine lock:
+             * 101: vote down, 102-104 - vote up
+             * These codes are used not to confuse with actual engine lock
+             * functionality, that can't be used in SSR scenario, as it
+             * conflicts with initialization sequence.
+             */
+            int mode = mPowerUp ? 103 : 101;
+            mAdapter->setGpsLock(mode);
+        }
+        inline  void locallog() const {
+            LOC_LOGV("LocEngAdapterVotePower - Vote Power: %d",
+                     (int)mPowerUp);
+        }
+        inline virtual void log() const {
+            locallog();
+        }
+    };
+
+    if (getPowerVoteRight()) {
+        sendMsg(new LocEngAdapterVotePower(this, getPowerVote()));
+    }
 }
 
 void LocInternalAdapter::reportPosition(UlpLocation &location,
@@ -302,3 +333,4 @@ void LocEngAdapter::handleEngineUpEvent()
 {
     sendMsg(new LocEngUp(mOwner));
 }
+

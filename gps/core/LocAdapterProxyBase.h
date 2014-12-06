@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2014 The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -27,37 +27,33 @@
  *
  */
 
-#ifndef __LOC_DELAY_H__
-#define __LOC_DELAY_H__
+#ifndef LOC_ADAPTER_PROXY_BASE_H
+#define LOC_ADAPTER_PROXY_BASE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-#include<pthread.h>
-#include "log_util.h"
+#include <ContextBase.h>
+#include <gps_extended.h>
 
-/*
-  Return values:
-  Success = 0
-  Failure = Non zero
-*/
-typedef void(*loc_timer_callback)(void *user_data, int result);
+namespace loc_core {
 
+class LocAdapterProxyBase {
+private:
+    const LocAdapterBase *mLocAdapterBase;
+protected:
+    inline LocAdapterProxyBase(const LOC_API_ADAPTER_EVENT_MASK_T mask,
+                   ContextBase* context):
+                   mLocAdapterBase(new LocAdapterBase(mask, context, this)) {
+    }
+    inline virtual ~LocAdapterProxyBase() {
+        delete mLocAdapterBase;
+    }
+    ContextBase* getContext() const {
+        return mLocAdapterBase->getContext();
+    }
+public:
+    inline virtual void handleEngineUpEvent() {};
+    inline virtual void handleEngineDownEvent() {};
+};
 
-/*
-  Returns the handle, which can be used to stop the timer
-*/
-void* loc_timer_start(unsigned int delay_msec,
-                      loc_timer_callback,
-                      void* user_data);
+} // namespace loc_core
 
-/*
-  handle becomes invalid upon the return of the callback
-*/
-void loc_timer_stop(void* handle);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-
-#endif //__LOC_DELAY_H__
+#endif //LOC_ADAPTER_PROXY_BASE_H

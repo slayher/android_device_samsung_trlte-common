@@ -118,7 +118,6 @@ static loc_param_s_type loc_parameter_table[] =
   {"QUIPC_ENABLED",                  &gps_conf.QUIPC_ENABLED,                  NULL, 'n'},
   {"LPP_PROFILE",                    &gps_conf.LPP_PROFILE,                    NULL, 'n'},
   {"A_GLONASS_POS_PROTOCOL_SELECT",  &gps_conf.A_GLONASS_POS_PROTOCOL_SELECT,  NULL, 'n'},
-  {"SENSOR_PROVIDER",                &sap_conf.SENSOR_PROVIDER,                NULL, 'n'},
 };
 
 static void loc_default_parameters(void)
@@ -161,9 +160,6 @@ static void loc_default_parameters(void)
 
    /*By default no positioning protocol is selected on A-GLONASS system*/
    gps_conf.A_GLONASS_POS_PROTOCOL_SELECT = 0;
-
-   /* default provider is SSC */
-   sap_conf.SENSOR_PROVIDER = 1;
 }
 
 // 2nd half of init(), singled out for
@@ -187,7 +183,7 @@ static void loc_eng_handle_engine_up(loc_eng_data_s_type &loc_eng_data) ;
 static int loc_eng_start_handler(loc_eng_data_s_type &loc_eng_data);
 static int loc_eng_stop_handler(loc_eng_data_s_type &loc_eng_data);
 static int loc_eng_get_zpp_handler(loc_eng_data_s_type &loc_eng_data);
-
+static void loc_eng_handle_shutdown(loc_eng_data_s_type &loc_eng_data);
 static void deleteAidingData(loc_eng_data_s_type &logEng);
 static AgpsStateMachine*
 getAgpsStateMachine(loc_eng_data_s_type& logEng, AGpsExtType agpsType);
@@ -325,6 +321,27 @@ inline void LocEngGetZpp::log() const
 }
 void LocEngGetZpp::send() const {
     mAdapter->sendMsg(this);
+}
+
+
+LocEngShutdown::LocEngShutdown(LocEngAdapter* adapter) :
+    LocMsg(), mAdapter(adapter)
+{
+    locallog();
+}
+inline void LocEngShutdown::proc() const
+{
+    loc_eng_data_s_type* locEng = (loc_eng_data_s_type*)mAdapter->getOwner();
+    LOC_LOGD("%s:%d]: Calling loc_eng_handle_shutdown", __func__, __LINE__);
+    loc_eng_handle_shutdown(*locEng);
+}
+inline void LocEngShutdown::locallog() const
+{
+    LOC_LOGV("LocEngShutdown");
+}
+inline void LocEngShutdown::log() const
+{
+    locallog();
 }
 
 //        case LOC_ENG_MSG_SET_TIME:
@@ -501,20 +518,18 @@ struct LocEngLppConfig : public LocMsg {
 struct LocEngSensorControlConfig : public LocMsg {
     LocEngAdapter* mAdapter;
     const int mSensorsDisabled;
-    const int mSensorProvider;
     inline LocEngSensorControlConfig(LocEngAdapter* adapter,
-                                     int sensorsDisabled, int sensorProvider) :
-        LocMsg(), mAdapter(adapter), mSensorsDisabled(sensorsDisabled),
-        mSensorProvider(sensorProvider)
+                                     int sensorsDisabled) :
+        LocMsg(), mAdapter(adapter), mSensorsDisabled(sensorsDisabled)
     {
         locallog();
     }
     inline virtual void proc() const {
-        mAdapter->setSensorControlConfig(mSensorsDisabled, mSensorProvider);
+        mAdapter->setSensorControlConfig(mSensorsDisabled);
     }
     inline  void locallog() const {
-        LOC_LOGV("LocEngSensorControlConfig - Sensors Disabled: %d, Sensor Provider: %d",
-                 mSensorsDisabled, mSensorProvider);
+        LOC_LOGV("LocEngSensorControlConfig - Sensors Disabled: %d",
+                 mSensorsDisabled);
     }
     inline virtual void log() const {
         locallog();
@@ -1356,7 +1371,7 @@ struct LocEngAtlOpenSuccess : public LocMsg {
         mStateMachine->onRsrcEvent(RSRC_GRANTED);
     }
     inline void locallog() const {
-        LOC_LOGV("LocEngAtlOpenSuccess agps type: %s\n  apn: %s\n"
+        LOC_LOGV("LocEngAtlClosed agps type: %s\n  apn: %s\n"
                  "  bearer type: %s",
                  loc_get_agps_type_name(mStateMachine->getType()),
                  mAPN,
@@ -1524,7 +1539,7 @@ int loc_eng_init(loc_eng_data_s_type &loc_eng_data, LocCallbacks* callbacks,
     loc_eng_data.sv_ext_parser = callbacks->sv_ext_parser ?
         callbacks->sv_ext_parser : noProc;
     loc_eng_data.intermediateFix = gps_conf.INTERMEDIATE_POS;
-
+    loc_eng_data.shutdown_cb = callbacks->shutdown_cb;
     // initial states taken care of by the memset above
     // loc_eng_data.engine_status -- GPS_STATUS_NONE;
     // loc_eng_data.fix_session_status -- GPS_STATUS_NONE;
@@ -1563,8 +1578,7 @@ static int loc_eng_reinit(loc_eng_data_s_type &loc_eng_data)
         LocEngAdapter* adapter = loc_eng_data.adapter;
         adapter->sendMsg(new LocEngSuplVer(adapter, gps_conf.SUPL_VER));
         adapter->sendMsg(new LocEngLppConfig(adapter, gps_conf.LPP_PROFILE));
-        adapter->sendMsg(new LocEngSensorControlConfig(adapter, sap_conf.SENSOR_USAGE,
-                                                       sap_conf.SENSOR_PROVIDER));
+        adapter->sendMsg(new LocEngSensorControlConfig(adapter, sap_conf.SENSOR_USAGE));
         adapter->sendMsg(new LocEngAGlonassProtocol(adapter, gps_conf.A_GLONASS_POS_PROTOCOL_SELECT));
 
         /* Make sure at least one of the sensor property is specified by the user in the gps.conf file. */
@@ -2528,6 +2542,8 @@ void loc_eng_handle_engine_up(loc_eng_data_s_type &loc_eng_data)
     ENTRY_LOG();
     loc_eng_reinit(loc_eng_data);
 
+    loc_eng_data.adapter->requestPowerVote();
+
     if (loc_eng_data.agps_status_cb != NULL) {
         if (loc_eng_data.agnss_nif)
             loc_eng_data.agnss_nif->dropAllSubscribers();
@@ -2606,4 +2622,28 @@ int loc_eng_read_config(void)
 
     EXIT_LOG(%d, 0);
     return 0;
+}
+
+/*===========================================================================
+FUNCTION    loc_eng_handle_shutdown
+
+DESCRIPTION
+   Calls the shutdown callback function in the loc interface to close
+   the modem node
+
+DEPENDENCIES
+   None
+
+RETURN VALUE
+   0: success
+
+SIDE EFFECTS
+   N/A
+
+===========================================================================*/
+void loc_eng_handle_shutdown(loc_eng_data_s_type &locEng)
+{
+    ENTRY_LOG();
+    locEng.shutdown_cb();
+    EXIT_LOG(%d, 0);
 }
