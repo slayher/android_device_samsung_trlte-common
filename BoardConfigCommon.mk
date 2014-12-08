@@ -48,6 +48,7 @@ BOARD_CHARGING_CMDLINE_VALUE := "true"
 
 # CMHW
 BOARD_HARDWARE_CLASS += hardware/samsung/cmhw
+BOARD_HARDWARE_CLASS += device/samsung/trlte-common/cmhw
 
 # Display
 BOARD_EGL_CFG := device/samsung/trlte-common/configs/egl.cfg

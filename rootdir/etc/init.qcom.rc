@@ -448,6 +448,11 @@ on property:ro.debuggable=1
     chown system radio /sys/class/sensors/ssp_sensor/tsp_angle
     chown system radio /sys/class/sensors/ssp_sensor/uevent
 
+    # touchkey enable/disable
+
+    chown system system /sys/class/sec/sec_touchkey/keypad_enable
+    chmod 0660 /sys/class/sec/sec_touchkey/keypad_enable
+
     # h2k permission
     chmod 0644 /efs/redata.bin
     chown radio radio /efs/h2k.dat
