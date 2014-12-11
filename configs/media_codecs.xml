@@ -249,4 +249,5 @@
         <MediaCodec name="OMX.google.mpeg4.decoder" type="video/mp4v-es" />
     </Decoders>
     <Include href="media_codecs_google_video.xml" />
+    <Include href="media_codecs_ffmpeg.xml" />
 </MediaCodecs>
