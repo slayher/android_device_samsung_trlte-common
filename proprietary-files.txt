@@ -269,6 +269,9 @@ etc/firmware/cpp_firmware_v1_6_0.fw
 etc/H16UL_s5k2p2xx_module_info.xml
 etc/H16US_imx240_module_info.xml
 
+# ConsumerIR Hal
+lib/hw/consumerir.apq8084.so
+
 # CPU
 bin/mpdecision
 bin/thermal-engine
