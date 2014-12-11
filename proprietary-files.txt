@@ -347,6 +347,7 @@ lib/hw/sensorhubs.apq8084.so
 bin/time_daemon
 -app/TimeService.apk
 lib/libcommon_time_client.so
+vendor/lib/libTimeService.so
 -vendor/lib/libtime_genoff.so
 
 # Wi-Fi
