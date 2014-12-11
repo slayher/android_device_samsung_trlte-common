@@ -112,14 +112,7 @@ PRODUCT_PACKAGES += \
     copybit.apq8084 \
     gralloc.apq8084 \
     hwcomposer.apq8084 \
-    memtrack.apq8084 \
-    libc2dcolorconvert \
-    libstagefrighthw \
-    libOmxCore \
-    libmm-omxcore \
-    libOmxVdec \
-    libOmxVdecHevc \
-    libOmxVenc
+    memtrack.apq8084
 
 # Fingerprint sensor
 PRODUCT_PACKAGES += \
@@ -154,6 +147,23 @@ PRODUCT_PACKAGES += \
     lights.apq8084
 
 # Media
+PRODUCT_PACKAGES += \
+    libc2dcolorconvert \
+    libdivxdrmdecrypt \
+    libdashplayer \
+    libOmxAacEnc \
+    libOmxAmrEnc \
+    libOmxCore \
+    libOmxEvrcEnc \
+    libOmxQcelp13Enc \
+    libOmxVdec \
+    libOmxVdecHevc \
+    libOmxVenc \
+    libstagefrighthw \
+    qcmediaplayer
+
+PRODUCT_BOOT_JARS += qcmediaplayer
+
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml \
     $(LOCAL_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
