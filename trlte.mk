@@ -177,19 +177,19 @@ PRODUCT_PACKAGES += \
 	power.apq8084
 
  # NFC PACKAGES
-PRODUCT_PACKAGES += \
-    com.android.nfc_extras \
-    libnfc-sec \
-    NfcNci \
-    Tag \
-    nfc_nci.apq8084
+#PRODUCT_PACKAGES += \
+#    com.android.nfc_extras \
+#    libnfc-sec \
+#    NfcNci \
+#    Tag \
+#    nfc_nci.apq8084
  
 # NFC CONFIG
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-sec.conf \
-    $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-brcm.conf \
-    $(LOCAL_PATH)/configs/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
-    $(LOCAL_PATH)/configs/nfcee_access.xml:system/etc/nfcee_access.xml
+#PRODUCT_COPY_FILES += \
+#    $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-sec.conf \
+#    $(LOCAL_PATH)/configs/libnfc-sec.conf:system/etc/libnfc-brcm.conf \
+#    $(LOCAL_PATH)/configs/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
+#    $(LOCAL_PATH)/configs/nfcee_access.xml:system/etc/nfcee_access.xml
 
 #NFC HAL
 #PRODUCT_COPY_FILES += \
