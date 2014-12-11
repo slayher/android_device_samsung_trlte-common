@@ -52,12 +52,12 @@ BOARD_HARDWARE_CLASS += device/samsung/trlte-common/cmhw
 
 # Display
 BOARD_EGL_CFG := device/samsung/trlte-common/configs/egl.cfg
-TARGET_HAVE_NEW_GRALLOC := true
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 OVERRIDE_RS_DRIVER:= libRSDriver_adreno.so
 MAX_EGL_CACHE_KEY_SIZE := 12*1024
 MAX_EGL_CACHE_SIZE := 2048*1024
 BOARD_USES_LEGACY_MMAP := true
+HAVE_ADRENO_SOURCE := false
+USE_OPENGL_RENDERER := true
 
 # Include path
 TARGET_SPECIFIC_HEADER_PATH := $(LOCAL_PATH)/include

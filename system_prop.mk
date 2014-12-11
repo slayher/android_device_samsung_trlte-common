@@ -12,7 +12,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.hdcp2.rx=tz \
     ro.qualcomm.cabl=1 \
     ro.secwvk=144 \
-    ro.sf.lcd_density=640
+    ro.sf.lcd_density=640 \
+    ro.opengles.version=196608
 
 # GPS
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -29,5 +30,5 @@ PRODUCT_PROPERTY_OVERRIDES += \
     persist.radio.lte_vrat_report=1
 
 # Sensors
-#PRODUCT_PROPERTY_OVERRIDES += \
-#    debug.sensors=1
+PRODUCT_PROPERTY_OVERRIDES += \
+    debug.sensors=1
