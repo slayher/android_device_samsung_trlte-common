@@ -78,6 +78,7 @@ TARGET_PROVIDES_LIBLIGHT := true
 
 # Media
 TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
+BOARD_USE_SAMSUNG_COLORFORMAT := true
 
 # NFC
 BOARD_NFC_CHIPSET := pn547
@@ -116,31 +117,24 @@ TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/rootdir/etc/fstab.qcom
 include device/qcom/sepolicy/sepolicy.mk
 
 # SELinux
-#BOARD_SEPOLICY_DIRS += \
-#    device/samsung/trlte-common/sepolicy
+BOARD_SEPOLICY_DIRS += \
+    device/samsung/trlte-common/sepolicy
 
-#BOARD_SEPOLICY_UNION += \
-#    file_contexts \
-#    app.te \
-#    bluetooth.te \
-#    device.te \
-#    domain.te \
-#    drmserver.te \
-#    file.te \
-#    hci_init.te \
-#    healthd.te \
-#    init.te \
-#    init_shell.te \
-#    keystore.te \
-#    kickstart.te \
-#    mediaserver.te \
-#    nfc.te \
-#    rild.te \
-#    surfaceflinger.te \
-#    system.te \
-#    ueventd.te \
-#    wpa.te \
-#    wpa_socket.te
+BOARD_SEPOLICY_UNION += \
+	device.te \
+	file.te \
+    file_contexts \
+    macloader.te \
+    mediaserver.te \
+    mdm_helper.te \
+    mm-qcamerad.te \
+    mpdecision.te \
+    platform_app.te \
+    rild.te \
+    system_app.te \
+    time_daemon.te \
+    wpa.te \
+    vold.te
 
 # Time
 BOARD_USES_QC_TIME_SERVICES := true
