@@ -113,6 +113,15 @@ on post-fs
     chown system radio /sys/block/mmcblk0/bkops_en
     chmod 0664 /sys/block/mmcblk0/bkops_en
 
+# Mobicore
+    export MC_AUTH_TOKEN_PATH /efs
+
+# set device node permissions for TLC apps
+    chmod 700 /dev/mobicore
+    chmod 666 /dev/mobicore-user
+    chown system system /dev/mobicore
+    chown radio system /dev/mobicore-user
+
 on post-fs-data
 
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
@@ -1315,8 +1324,10 @@ service SIDESYNC_service /system/bin/ss_conn_daemon
     group inet net_raw
 
 
-service wpa_supplicant /system/bin/wpa_supplicant -g@android:wpa_wlan0 \
-    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
+service wpa_supplicant /system/bin/wpa_supplicant \
+    -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
+    -I/system/etc/wifi/wpa_supplicant_overlay.conf \
+    -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
     #   we will start as root and wpa_supplicant will switch to user wifi
     #   after setting up the capabilities required for WEXT
     #   user wifi
@@ -1328,10 +1339,9 @@ service wpa_supplicant /system/bin/wpa_supplicant -g@android:wpa_wlan0 \
 
 service p2p_supplicant /system/bin/wpa_supplicant \
     -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/system/etc/wifi/wpa_supplicant_overlay.conf -N \
-    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
-    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets -puse_p2p_group_interface=1 \
+    -I/system/etc/wifi/p2p_supplicant_overlay.conf  \
+    -puse_p2p_group_interface=1p2p_device=1 \
+    -m/data/misc/wifi/p2p_supplicant.conf \
     -e/data/misc/wifi/entropy.bin -g@android:wpa_wlan0
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
@@ -1464,6 +1474,7 @@ on property:init.svc.p2p_supplicant=stopped
 service macloader /system/bin/macloader
     class main
     oneshot
+    u:object_r:macloader_exec:s0
 
 on property:crypto.driver.load=1
      insmod /system/lib/modules/qce.ko
@@ -1597,14 +1608,19 @@ service hcidump /system/bin/sh /system/etc/hcidump.sh
     disabled
     oneshot
 
-service scranton_RD /system/bin/scranton_RD
-    class main
-    user root
-    disabled
-    oneshot
+service prepare-mobicore /system/bin/mcStarter tbase300
+	class core
+	user root
+	group root
+	oneshot
 
-on property:sys.qseecomd.enable=true
-    start scranton_RD
+service run-mobicore /system/bin/sh /system/bin/mobicore-startup.sh
+	class core
+	user system
+	group system
+
+on property:init.svc.bootanim=stopped
+	start run-mobicore
 
 on property:persist.sys.ssr.restart_level=1
     write /sys/module/subsystem_restart/parameters/restart_level 1
