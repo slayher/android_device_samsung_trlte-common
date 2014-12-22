@@ -21,9 +21,9 @@
 #define LOG_TAG "PowerHAL_TR_Ext"
 #include <utils/Log.h>
 
-#define TOUCHKEY_POWER "/sys/class/input/event1/device/enabled"
-#define SPEN_POWER "/sys/class/input/event20/device/enabled"
-#define TSP_POWER "/sys/class/input/event2/device/enabled"
+#define TOUCHKEY_POWER "/sys/class/input/input1/enabled"
+#define SPEN_POWER "/sys/class/input/input20/enabled"
+#define TSP_POWER "/sys/class/input/input2/enabled"
 #define LCD_POWER "/sys/class/power_supply/battery/lcd"
 
 static void sysfs_write(char *path, char *s) {

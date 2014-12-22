@@ -685,7 +685,7 @@ on boot
     chown system radio /sys/class/sec/switch/adc
     chown system radio /sys/class/sec/switch/otg_test
 
-    # bcmtch15xxx TSP
+    # sii8620 MHL adapter
     chown system system /sys/class/input/input0/enabled
 
     # Fingerprint
@@ -1171,8 +1171,8 @@ on boot
     chown system system /sys/class/input/input18/enabled
 
     # permissions for S-Pen
-    chmod 0660 /sys/class/input/event20/device/enabled
-    chown system system /sys/class/input/event20/device/enabled
+    chmod 0660 /sys/class/input/input20/enabled
+    chown system system /sys/class/input/input20/enabled
     chown system radio /sys/class/sec/sec_epen/epen_firm_update
     chown system radio /sys/class/sec/sec_epen/epen_reset
     chown system radio /sys/class/sec/sec_epen/epen_reset_result
