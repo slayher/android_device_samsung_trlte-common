@@ -334,6 +334,9 @@ vendor/lib/libOmxEvrcDec.so
 vendor/lib/libOmxQcelp13Dec.so
 vendor/lib/libOmxWmaDec.so
 
+# NFC
+lib/hw/nfc_nci.apq8084.so
+
 # Perf
 vendor/lib/libqc-opt.so
 
