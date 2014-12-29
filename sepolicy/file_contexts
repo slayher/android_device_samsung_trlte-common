@@ -4,6 +4,5 @@
 /dev/sec-nfc			u:object_r:nfc_device:s0
 /dev/rfkill			u:object_r:wpa_device:s0
 /proc/bluetooth/sleep/btwrite		u:object_r:proc_bluetooth_writable:s0
-/system/bin/rfs_access		u:object_r:rfs_access_exec:s0
 /sys/devices/virtual/lcd/panel/power_reduce		u:object_r:lcd_dev:s0
 /efs/bluetooth/bt_addr		u:object_r:bluetooth_efs_file:s0
