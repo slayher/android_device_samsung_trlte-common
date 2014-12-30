@@ -1170,22 +1170,6 @@ on boot
     chown system system /sys/class/input/input4/enabled
     chown system system /sys/class/input/input18/enabled
 
-    # permissions for S-Pen
-    chmod 0660 /sys/class/input/input20/enabled
-    chown system system /sys/class/input/input20/enabled
-    chown system radio /sys/class/sec/sec_epen/epen_firm_update
-    chown system radio /sys/class/sec/sec_epen/epen_reset
-    chown system radio /sys/class/sec/sec_epen/epen_reset_result
-    chown system radio /sys/class/sec/sec_epen/epen_checksum
-    chown system radio /sys/class/sec/sec_epen/epen_checksum_result
-    chown system radio /sys/class/sec/sec_epen/epen_saving_mode
-    chown system radio /sys/class/sec/sec_epen/epen_connection
-    chown system radio /sys/class/sec/sec_epen/epen_tuning_version
-    chown system radio /sys/class/sec/sec_epen/epen_firm_update_status
-    chown system radio /sys/class/sec/sec_epen/epen_firm_version
-    chown system radio /sys/class/sec/sec_epen/epen_delay_time
-    chown system radio /sys/class/sec/sec_epen/boost_level
-
     # permissions for bluetooth.
     setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
     chown bluetooth net_bt_stack ro.bt.bdaddr_path
@@ -1474,7 +1458,6 @@ on property:init.svc.p2p_supplicant=stopped
 service macloader /system/bin/macloader
     class main
     oneshot
-    u:object_r:macloader_exec:s0
 
 on property:crypto.driver.load=1
      insmod /system/lib/modules/qce.ko
@@ -1537,10 +1520,10 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time 40000
     write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 30000
     write /sys/devices/system/cpu/cpufreq/interactive/sampling_down_factor 100000
-    write /devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
-    write /devices/system/cpu/cpu1/cpufreq/scaling_min_freq 300000
-    write /devices/system/cpu/cpu2/cpufreq/scaling_min_freq 300000
-    write /devices/system/cpu/cpu3/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu2/cpufreq/scaling_min_freq 300000
+    write /sys/devices/system/cpu/cpu3/cpufreq/scaling_min_freq 300000
     write /sys/module/msm_thermal/core_control/enabled 1
     write /sys/devices/system/cpu/cpufreq/interactive/up_threshold_any_cpu_load 75
     write /sys/devices/system/cpu/cpufreq/interactive/up_threshold_any_cpu_freq 1728000
@@ -1561,6 +1544,22 @@ on property:sys.boot_completed=1
     write /sys/module/cpu_boost/parameters/input_boost_ms 40
     write /sys/module/cpu_boost/parameters/plug_boost_freq 1728000
     write /sys/module/cpu_boost/parameters/plug_boost_ms 5
+
+    # permissions for S-Pen
+    chmod 0660 /sys/class/input/input20/enabled
+    chown system system /sys/class/input/input20/enabled
+    chown system radio /sys/class/sec/sec_epen/epen_firm_update
+    chown system radio /sys/class/sec/sec_epen/epen_reset
+    chown system radio /sys/class/sec/sec_epen/epen_reset_result
+    chown system radio /sys/class/sec/sec_epen/epen_checksum
+    chown system radio /sys/class/sec/sec_epen/epen_checksum_result
+    chown system radio /sys/class/sec/sec_epen/epen_saving_mode
+    chown system radio /sys/class/sec/sec_epen/epen_connection
+    chown system radio /sys/class/sec/sec_epen/epen_tuning_version
+    chown system radio /sys/class/sec/sec_epen/epen_firm_update_status
+    chown system radio /sys/class/sec/sec_epen/epen_firm_version
+    chown system radio /sys/class/sec/sec_epen/epen_delay_time
+    chown system radio /sys/class/sec/sec_epen/boost_level
 
     # Post boot services
     start mpdecision
