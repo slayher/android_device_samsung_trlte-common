@@ -121,9 +121,13 @@ BOARD_SEPOLICY_DIRS += \
     device/samsung/trlte-common/sepolicy
 
 BOARD_SEPOLICY_UNION += \
-	device.te \
-	file.te \
+    bluetooth.te \
+    device.te \
+    file.te \
     file_contexts \
+    genfs_contexts \
+    kernel.te \
+    lcd_dev.te \
     macloader.te \
     mediaserver.te \
     mdm_helper.te \
@@ -132,8 +136,11 @@ BOARD_SEPOLICY_UNION += \
     platform_app.te \
     rild.te \
     system_app.te \
+    system_server.te \
     time_daemon.te \
+    ueventd.te \
     wpa.te \
+    vibe_dev.te \
     vold.te
 
 # Time
