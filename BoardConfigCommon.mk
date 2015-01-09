@@ -114,9 +114,12 @@ BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_RECOVERY_SWIPE := true
 TARGET_RECOVERY_FSTAB := $(LOCAL_PATH)/rootdir/etc/fstab.qcom
 
-include device/qcom/sepolicy/sepolicy.mk
+# Releasetools
+TARGET_RELEASETOOLS_EXTENSIONS := device/samsung/trlte-common
 
 # SELinux
+include device/qcom/sepolicy/sepolicy.mk
+
 BOARD_SEPOLICY_DIRS += \
     device/samsung/trlte-common/sepolicy
 
